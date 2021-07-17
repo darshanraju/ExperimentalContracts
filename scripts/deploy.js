@@ -1,4 +1,20 @@
-// const { ethers } = require("hardhat");
+const MockOpenSeaMetaData = {
+  description: "a bunch of description text",
+  external_url: "https://openseacreatures.io/3",
+  image:
+    "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmemestatic.fjcdn.com%2Fpictures%2FRunescape_8449f5_6366030.jpg",
+  name: "Darshan Darshan",
+  attributes: [
+    {
+      trait_type: "Base",
+      value: "Starfish",
+    },
+    {
+      trait_type: "Level",
+      value: 5,
+    },
+  ],
+};
 
 async function main() {
   //Get connection to etherium using ethers lib
@@ -22,12 +38,9 @@ async function main() {
   console.log("Stored value in contract is: ", result);
 
   console.log("---------------------2----------------------");
-  console.log("NFT Contract Deployment");
+
   const NFT_CONTRACT_NAME = "niftyVerse";
   const NFT_CONTRACT_SYMBOL = "NV";
-  const tokenURI =
-    "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmemestatic.fjcdn.com%2Fpictures%2FRunescape_8449f5_6366030.jpg&f=1&nofb=1";
-  let tokenID = 1;
 
   const NFTContract = await ethers.getContractFactory("StudentNFTContract");
   const deployedNFTContract = await NFTContract.deploy(
@@ -36,12 +49,27 @@ async function main() {
   );
 
   console.log("Deployed NFT contract address: ", deployedNFTContract.address);
+  let tokenID = 1;
 
+  console.log("FIRST MINT");
+  const tokenURI =
+    "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmemestatic.fjcdn.com%2Fpictures%2FRunescape_8449f5_6366030.jpg&f=1&nofb=1";
   await deployedNFTContract.mint(deployer.address, tokenID, tokenURI);
+  const NFTURI1 = await deployedNFTContract.tokenURI(tokenID);
+  console.log(`First NFT MetaData: ${NFTURI1}`);
 
-  const NFTURI = await deployedNFTContract.tokenURI(tokenID);
+  console.log("SECOND MINT");
+  tokenID += 1;
+  await deployedNFTContract.mint(
+    deployer.address,
+    tokenID,
+    JSON.stringify(MockOpenSeaMetaData)
+  );
 
-  console.log(`URI: ${NFTURI}`);
+  const NFTURI2 = await deployedNFTContract.tokenURI(tokenID);
+
+  console.log("Second NFT MetaData: ");
+  console.log(JSON.parse(NFTURI2));
 }
 
 main();
